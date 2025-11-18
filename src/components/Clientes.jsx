@@ -6,10 +6,13 @@ import {
   deleteDoc,
   doc,
   updateDoc,
+  query,
+  where,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import '../styles.css';
 
-export default function Clientes() {
+export default function Clientes({ userId }) {
   const [clientes, setClientes] = useState([]);
   const [nome, setNome] = useState('');
   const [fantasia, setFantasia] = useState('');
@@ -18,14 +21,15 @@ export default function Clientes() {
 
   useEffect(() => {
     const ref = collection(db, 'clientes');
-    return onSnapshot(ref, (snapshot) => {
+    const q = query(ref, where('userId', '==', userId));
+    return onSnapshot(q, (snapshot) => {
       const dados = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setClientes(dados);
     });
-  }, []);
+  }, [userId]);
 
   async function salvar() {
     if (!nome) return;
@@ -35,6 +39,7 @@ export default function Clientes() {
       fantasia,
       endereco,
       telefone,
+      userId,
     });
 
     setNome('');

@@ -6,8 +6,10 @@ import {
   deleteDoc,
   updateDoc,
   doc,
+  query,
+  where,
 } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { auth, db } from '../firebase/config';
 import '../styles.css';
 
 export default function Produtos() {
@@ -15,6 +17,8 @@ export default function Produtos() {
   const [nome, setNome] = useState('');
   const [categoria, setCategoria] = useState('');
   const [custo, setCusto] = useState('');
+
+  const userId = auth.currentUser?.uid;
 
   const categorias = [
     'Blocos',
@@ -26,23 +30,29 @@ export default function Produtos() {
   ];
 
   useEffect(() => {
+    if (!userId) return;
+
     const ref = collection(db, 'produtos');
-    return onSnapshot(ref, (snapshot) => {
+    const q = query(ref, where('userId', '==', userId));
+
+    return onSnapshot(q, (snapshot) => {
       const dados = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setProdutos(dados);
     });
-  }, []);
+  }, [userId]);
 
   async function salvar() {
     if (!nome || !categoria || !custo) return;
+    if (!userId) return;
 
     await addDoc(collection(db, 'produtos'), {
       nome,
       categoria,
       custo: Number(custo),
+      userId,
     });
 
     setNome('');

@@ -6,8 +6,10 @@ import {
   deleteDoc,
   updateDoc,
   doc,
+  query,
+  where,
 } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { auth, db } from '../firebase/config';
 import { formatarReal } from '../utils/format';
 
 export default function Vendas() {
@@ -21,19 +23,30 @@ export default function Vendas() {
   const [precoVenda, setPrecoVenda] = useState('');
   const [dataVenda, setDataVenda] = useState('');
 
+  const userId = auth.currentUser?.uid;
+
   useEffect(() => {
-    onSnapshot(collection(db, 'clientes'), (snap) => {
+    const refClientes = collection(db, 'clientes');
+    const qClientes = query(refClientes, where('userId', '==', userId));
+
+    onSnapshot(qClientes, (snap) => {
       setClientes(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
 
-    onSnapshot(collection(db, 'produtos'), (snap) => {
+    const refProdutos = collection(db, 'produtos');
+    const qProdutos = query(refProdutos, where('userId', '==', userId));
+
+    onSnapshot(qProdutos, (snap) => {
       setProdutos(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
 
-    onSnapshot(collection(db, 'vendas'), (snap) => {
+    const refVendas = collection(db, 'vendas');
+    const qVendas = query(refVendas, where('userId', '==', userId));
+
+    onSnapshot(qVendas, (snap) => {
       setVendas(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
-  }, []);
+  }, [userId]);
 
   async function salvar() {
     const produto = produtos.find((p) => p.id === produtoId);
@@ -61,6 +74,7 @@ export default function Vendas() {
       margem,
       status: 'aberto',
       data: dataVenda,
+      userId,
     });
 
     setClientId('');
