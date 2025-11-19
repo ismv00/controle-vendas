@@ -27,6 +27,17 @@ export default function Produtos() {
     'Cadernos',
     'Planner',
     'Devocional',
+    'Adesivo',
+    'Kit Curso Basico',
+    'kit curso Top',
+    'Caixa Cartonada',
+    'Card',
+    'Mimo',
+    'Calendario',
+    'Marcador Magnetico',
+    'Combo',
+    'Caderneta Saude',
+    'Planner',
   ];
 
   useEffect(() => {
