@@ -8,6 +8,7 @@ import {
   doc,
   query,
   where,
+  orderBy,
 } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 import { formatarReal } from '../utils/format';
@@ -26,6 +27,7 @@ export default function Vendas() {
   const userId = auth.currentUser?.uid;
 
   useEffect(() => {
+    //CLIENTES
     const refClientes = collection(db, 'clientes');
     const qClientes = query(refClientes, where('userId', '==', userId));
 
@@ -33,6 +35,7 @@ export default function Vendas() {
       setClientes(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
 
+    // PRODUTOS
     const refProdutos = collection(db, 'produtos');
     const qProdutos = query(refProdutos, where('userId', '==', userId));
 
@@ -40,8 +43,14 @@ export default function Vendas() {
       setProdutos(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
 
+    //VENDAS
+
     const refVendas = collection(db, 'vendas');
-    const qVendas = query(refVendas, where('userId', '==', userId));
+    const qVendas = query(
+      refVendas,
+      where('userId', '==', userId),
+      orderBy('data', 'desc')
+    );
 
     onSnapshot(qVendas, (snap) => {
       setVendas(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
