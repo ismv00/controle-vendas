@@ -8,6 +8,7 @@ import {
   doc,
   query,
   where,
+  getDocs,
 } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 import '../styles.css';
@@ -78,7 +79,29 @@ export default function Produtos() {
   }
 
   async function excluir(id) {
-    await deleteDoc(doc(db, 'produtos', id));
+    try {
+      const vendasRef = collection(db, 'vendas');
+      const q = query(vendasRef, where('produtoId', '==', id));
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        alert(
+          '❌ Este produto NÃO pode ser excluído porque já existe venda registrada por ele. \n\nExclua a venda primeiro.'
+        );
+        return;
+      }
+
+      const confirmar = window.confirm(
+        'Tem certeza que deseja excluir esse produto?'
+      );
+
+      if (!confirmar) return;
+
+      await deleteDoc(doc(db, 'produtos', id));
+    } catch (error) {
+      console.error('Erro ao excluir o produto: ', error);
+      alert('Erro ao excluir o produto.');
+    }
   }
 
   function formatarReal(valor) {
